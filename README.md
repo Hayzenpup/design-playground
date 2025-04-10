@@ -1,10 +1,6 @@
 ## Setup
 
-```BASH
-sudo apt install plantuml # ubuntu
-```
-
-Or download
+Download
 
 ```BASH
 wget https://github.com/plantuml/plantuml/releases/download/v1.2025.2/plantuml-1.2025.2.jar
@@ -40,7 +36,7 @@ Inside that block, you declare:
 
 - Relationships: arrows (->, <--, --|>, etc.)
 
-- Styling & layout: direction, colors, notes, packages, etc.
+- Styling & layout: direction, colors, notes, packages, title etc.
 
 ## Core Elements Of PlantUML
 
@@ -49,8 +45,24 @@ Inside that block, you declare:
 > What is the system we’re building, who uses it, and what other systems does it interact with?
 
 ```plantuml
+@startuml
+'Must include the C4-PlantUML library for C4_context Diagrams
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+' Place this at the top, before elements, renders left to right
+LAYOUT_LEFT_RIGHT()
 
+@enduml
 ```
+
+`Person(identifier, "Display Name", "Description")` — defines an actor/stakeholder
+
+`System(identifier, "Display Name", "Description")` — defines a system under consideration
+`System_Ext(identifier, "Display Name", "Description")` — defines an external system
+`System_Boundary(identifier, "Display Name", "Description")` — defines a boundary around a system
+
+`Rel(from, to, "Description")` — defines a relationship (with optional label)
+
+`LAYOUT_WITH_LEGEND()` - Part of the C4 styling extensions in C4_Deployment.puml. Auto-generates a legend and cleans up layout spacing
 
 ### Entities (Participants)
 

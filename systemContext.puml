@@ -1,0 +1,29 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title System Context - Codespace
+
+' Place this at the top, before elements
+LAYOUT_LEFT_RIGHT()
+
+' === ACTORS ===
+Person(user, "Student", "Submits and runs code")
+Person(teacher, "Teacher", "Creates tests and reviews submissions")
+
+' === SYSTEM UNDER DESIGN ===
+System_Boundary(s1, "Codespace System") {
+    System(codespace, "Codespace Platform", "Online platform for running student code in secure containers")
+}
+
+' === EXTERNAL SYSTEMS ===
+System_Ext(email, "SMTP Service", "Sends email notifications")
+
+' === RELATIONSHIPS ===
+Rel(user, codespace, "Submits code, views feedback")
+Rel(teacher, codespace, "Creates test cases, views reports")
+Rel(codespace, email, "OTP authentication")
+Rel(codespace, email, "Sends results and alerts")
+
+LAYOUT_WITH_LEGEND()
+@enduml
+
