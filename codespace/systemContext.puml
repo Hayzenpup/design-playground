@@ -14,6 +14,7 @@ Person(teacher, "Instructor", "Creates tests and reviews submissions")
 ' === SYSTEM UNDER DESIGN ===
 System_Boundary(s1, "Codespace System") {
     System(codespace, "Codespace Platform", "Online platform for collaborative work and code execution in secure containers")
+    
 }
 
 ' === EXTERNAL SYSTEMS ===
@@ -21,7 +22,7 @@ System_Ext(email, "SMTP Service", "Sends email notifications")
 System_Ext(moodle, "Moodle Platform", "Student Groups", $link="https://moodle.uni-siegen.de/course/view.php?id=5258")
 
 ' === RELATIONSHIPS ===
-Rel(user, codespace, "Submits code, views feedback")
+Rel(user, codespace, "Collaboratively edit, run and test code, submit report")
 Rel(teacher, codespace, "Creates test cases, views reports")
 Rel(codespace, email, "OTP authentication")
 Rel(codespace, email, "Sends results and alerts")
