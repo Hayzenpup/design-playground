@@ -1,0 +1,43 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Container Diagram - Codespace
+
+LAYOUT_LEFT_RIGHT()
+
+Person(student, "Student", "Submits code and checks feedback")
+Person(admin, "Instructor", "Configures tasks and manages students")
+
+System_Boundary(s1, "Codespace System") {
+  Container(web, "FastAPI Web App", "Python / FastAPI", "Exposes REST API to students and admins") 
+  Container(worker, "Celery Worker", "Python / Celery", "Processes long-running background tasks") 
+  Container(docker, "Execution Engine", "Docker CLI", "Executes student code in isolated containers")
+  Container(redis, "Redis", "Redis", "Caches test results and handles async task queue")
+  Container(db, "SQLite Database", "SQLite", "Stores persistent data like users, results, and configs")
+  Container(fs, "Filesystem", "Linux FS", "Stores uploaded files, logs, and test configs")
+  Container(logging, "Logging Stack", "ELK (Elasticsearch, Logstash, Kibana)", "System Logs, User Activity")
+}
+Rel(student, web, "Submits code and checks results", "HTTPS")
+Rel(admin, web, "Configures tasks and manages courses", "HTTPS")
+Rel(admin, logging, "Monitor submissions and errors", "kibana")
+
+Rel(web, db, "Reads/Writes student submissions, auth", "SQL")
+Rel(web, redis, "Caches session and task data", "Redis")
+Rel(web, worker, "Dispatches background test jobs", "Redis Queue")
+Rel(web, fs, "Save student's code, logs", "File I/O")
+Rel(web, docker, "Proxy to student's code", "HTTP")
+
+Rel(fs, logging, "Ingest logs", "Filebeat")
+
+Rel(worker, docker, "Spawns containers to execute code", "Docker CLI")
+Rel(worker, redis, "Fetches job metadata and status", "Redis")
+
+note right of db
+  - Authenticates users
+  - Stores submissions
+  - Retrieves results
+  - Logs activity
+end note
+
+@enduml
+

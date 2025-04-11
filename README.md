@@ -56,13 +56,15 @@ LAYOUT_LEFT_RIGHT()
 
 `Person(identifier, "Display Name", "Description")` — defines an actor/stakeholder
 
+`System_Boundary(identifier, "Display Name", "Description")` — defines a boundary around a system
 `System(identifier, "Display Name", "Description")` — defines a system under consideration
 `System_Ext(identifier, "Display Name", "Description")` — defines an external system
-`System_Boundary(identifier, "Display Name", "Description")` — defines a boundary around a system
 
 `Rel(from, to, "Description")` — defines a relationship (with optional label)
 
 `LAYOUT_WITH_LEGEND()` - Part of the C4 styling extensions in C4_Deployment.puml. Auto-generates a legend and cleans up layout spacing
+
+## C4 Container Diagram
 
 ### Entities (Participants)
 
