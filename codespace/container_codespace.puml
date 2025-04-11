@@ -25,8 +25,9 @@ System_Boundary(s1, "Codespace System") {
 }
 
 System_Ext(email, "Uni-Siegen SMTP Service", "Submission Notification/OTP")
+System_Ext(moodle, "Moodle Platform", "Student Groups")
 
-Rel(student, web, "Submits code and checks results", "HTTPS")
+Rel(student, web, "Submits code and checks result", "HTTPS")
 Rel(admin, web, "Configures tasks and manages courses", "HTTPS")
 Rel(admin, logging, "Monitor submissions and errors", "kibana")
 
@@ -40,13 +41,8 @@ Rel(fs, logging, "Ingest logs", "Filebeat")
 
 Rel(worker, docker, "Spawns containers to execute code", "Docker CLI")
 Rel(worker, redis, "Fetches job metadata and status", "Redis")
+Rel(fs, moodle, "Store Student Groups and Registrations")
 
-note right of db
-  - Authenticates users
-  - Stores submissions
-  - Retrieves results
-  - Logs activity
-end note
 
 SHOW_LEGEND()
 @enduml
