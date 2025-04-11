@@ -1,7 +1,0 @@
-AddElementTag("WebApp", $bgColor="CornflowerBlue", $fontColor="white", $borderColor="DarkSlateBlue")
-AddElementTag("Worker", $bgColor="Gold", $fontColor="black", $borderColor="DarkOrange")
-AddElementTag("ExecEngine", $bgColor="LightCyan", $fontColor="black", $borderColor="Teal")
-AddElementTag("Database", $bgColor="LightGray", $shape="cylinder")
-AddElementTag("Cache", $bgColor="MistyRose", $shape="hexagon")
-AddElementTag("Storage", $bgColor="WhiteSmoke", $shape="folder")
-

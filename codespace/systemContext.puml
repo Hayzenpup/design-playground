@@ -8,21 +8,25 @@ LAYOUT_LEFT_RIGHT()
 
 ' === ACTORS ===
 Person(user, "Student", "Submits and runs code")
-Person(teacher, "Teacher", "Creates tests and reviews submissions")
+Person(teacher, "Instructor", "Creates tests and reviews submissions")
 
 ' === SYSTEM UNDER DESIGN ===
 System_Boundary(s1, "Codespace System") {
-    System(codespace, "Codespace Platform", "Online platform for running student code in secure containers")
+    System(codespace, "Codespace Platform", "Online platform for collaborative work and code execution in secure containers")
 }
 
 ' === EXTERNAL SYSTEMS ===
 System_Ext(email, "SMTP Service", "Sends email notifications")
+System_Ext(moodle, "Moodle Platform", "Student Groups")
 
 ' === RELATIONSHIPS ===
 Rel(user, codespace, "Submits code, views feedback")
 Rel(teacher, codespace, "Creates test cases, views reports")
 Rel(codespace, email, "OTP authentication")
 Rel(codespace, email, "Sends results and alerts")
+
+Rel(user, moodle, "Form groups")
+Rel(codespace, moodle, "Get Student Groups and Registrations")
 
 LAYOUT_WITH_LEGEND()
 @enduml
