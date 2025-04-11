@@ -2,6 +2,7 @@
 !includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
 
 title System Context - Codespace
+skinparam titleFontSize 24
 
 ' Place this at the top, before elements
 LAYOUT_LEFT_RIGHT()
@@ -17,7 +18,7 @@ System_Boundary(s1, "Codespace System") {
 
 ' === EXTERNAL SYSTEMS ===
 System_Ext(email, "SMTP Service", "Sends email notifications")
-System_Ext(moodle, "Moodle Platform", "Student Groups")
+System_Ext(moodle, "Moodle Platform", "Student Groups", $link="https://moodle.uni-siegen.de/course/view.php?id=5258")
 
 ' === RELATIONSHIPS ===
 Rel(user, codespace, "Submits code, views feedback")

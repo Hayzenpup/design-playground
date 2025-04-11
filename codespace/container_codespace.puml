@@ -6,43 +6,59 @@
 !includeurl SPRITESURL/redis.puml
 !includeurl SPRITESURL/sqlite.puml
 !includeurl SPRITESURL/elasticsearch.puml
+!includeurl SPRITESURL/kibana.puml
 !includeurl SPRITESURL/linux-tux.puml
+!includeurl SPRITESURL/nginx.puml
+!includeurl SPRITESURL/react.puml
+
+
 title Container Diagram - Codespace
+skinparam titleFontSize 24
 
 LAYOUT_LEFT_RIGHT()
 
 Person(student, "Student", "Submits code and checks feedback")
 Person(admin, "Instructor", "Configures tasks and manages students")
 
+
 System_Boundary(s1, "Codespace System") {
+  Container(codefrontend, "Codespace UI", "React / Vite", "Frontend interface for students", $tags="UI", $sprite="react")
+  Container(adminfrontend, "Admin UI", "React / Vite", "Frontend interface for Admins", $tags="UI", $sprite="react")
+  Container(proxy, "Reverse Proxy", "Nginx", "Route Traffic to correct service", $sprite="nginx")
   Container(web, "FastAPI Web App", "Python / FastAPI", "Exposes REST API to students and admins", $sprite="python") 
   Container(worker, "Celery Worker", "Python / Celery", "Processes long-running background tasks", $sprite="python") 
   Container(docker, "Execution Engine", "Docker CLI", "Executes student code in isolated containers", $sprite="docker")
   ContainerDb(redis, "Redis", "Redis", "Caches test results and handles async task queue", $sprite="redis")
   ContainerDb(db, "SQLite Database", "SQLite", "Stores persistent data like users, results, and configs", $sprite="sqlite")
   Container(fs, "Filesystem", "Linux FS", "Stores uploaded files, logs, and test configs", $sprite="linux-tux")
-  Container(logging, "Logging Stack", "ELK (Elasticsearch, Logstash, Kibana)", "System Logs, User Activity", $sprite="elasticsearch")
+  Container(logging, "Logging Stack", "ELK (Elasticsearch, Logstash, Kibana)", "System Logs, User Activity", $sprite="elasticsearch", $link="https://eslab.es.eti.uni-siegen.de/kibana/")
+  Container(kibana, "Kibana", "Log Dashboard", $sprite="kibana", $link="https://eslab.es.eti.uni-siegen.de/kibana/")
 }
 
-System_Ext(email, "Uni-Siegen SMTP Service", "Submission Notification/OTP")
-System_Ext(moodle, "Moodle Platform", "Student Groups")
+System_Ext(email, "Uni-Siegen Mail Server")
+System_Ext(moodle, "Moodle Platform", "Student Groups", $link="https://moodle.uni-siegen.de/course/view.php?id=5258")
 
-Rel(student, web, "Submits code and checks result", "HTTPS")
-Rel(admin, web, "Configures tasks and manages courses", "HTTPS")
-Rel(admin, logging, "Monitor submissions and errors", "kibana")
+Rel(student, codefrontend, "Execute code, make submissionsb")
+Rel(codefrontend, proxy, "Submits code and checks result", "HTTPS")
+Rel(admin, adminfrontend, "Configures tasks and manages courses")
+Rel(adminfrontend, proxy, "Configures tasks and manages courses", "HTTPS")
+Rel(admin, proxy, "Monitors Dashboard", "HTTPS")
+Rel(proxy, web, "Forward students / admin course config requests", "HTTP")
+Rel(proxy, kibana, "Forward admin-dashboard requests ", "HTTP")
 
 Rel(web, db, "Reads/Writes student submissions, auth", "SQL")
 Rel(web, redis, "Caches session and task data", "Redis")
 Rel(web, worker, "Dispatches background test jobs", "Redis Queue")
 Rel(web, fs, "Save student's code, logs", "File I/O")
 Rel(web, docker, "Proxy to student's code", "HTTP")
-Rel(web, email, "Email", "SMTP")
+Rel(web, email, "Notifications/OTP", "SMTP")
 Rel(fs, logging, "Ingest logs", "Filebeat")
 
 Rel(worker, docker, "Spawns containers to execute code", "Docker CLI")
 Rel(worker, redis, "Fetches job metadata and status", "Redis")
-Rel(fs, moodle, "Store Student Groups and Registrations")
+Rel(fs, moodle, "Store Student Groups and Registrations", "CSV")
 
+Rel(kibana, logging, "log search and Dashboards")
 
 SHOW_LEGEND()
 @enduml
