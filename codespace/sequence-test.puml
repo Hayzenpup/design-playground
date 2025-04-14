@@ -1,0 +1,28 @@
+@startuml
+title Test Submission and Real-Time Feedback Flow
+
+actor Student
+participant "Frontend UI" as UI
+participant "FastAPI Backend" as Backend
+participant "Docker Container\n(Task Runner)" as Container
+participant "WebSocketManager" as WS
+
+Student -> UI : Submit code and report
+UI -> Backend : POST /submit
+
+Backend -> Backend : Validate submission
+Backend -> Backend : Persist code & report
+Backend -> Container : Launch container (per task/group)
+
+activate Container
+Container -> Container : Mount code and tests
+Container -> Container : Run Pytest or GTest
+Container -> Backend : Stream stdout and test events
+Backend -> WS : Forward events to WebSocket channel
+WS -> UI : Push real-time stdout + test results
+
+deactivate Container
+Backend -> Container : Terminate container
+Backend -> UI : Final submission status (pass/fail)
+
+@enduml

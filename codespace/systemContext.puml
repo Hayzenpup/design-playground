@@ -3,6 +3,8 @@
 
 title System Context - Codespace
 skinparam titleFontSize 24
+skinparam defaultFontSize 20
+skinparam dpi 150
 
 ' Place this at the top, before elements
 LAYOUT_LEFT_RIGHT()

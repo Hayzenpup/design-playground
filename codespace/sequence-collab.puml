@@ -1,0 +1,36 @@
+@startuml
+title Group Collaboration on Task-Based Interactive UI
+
+actor Student1
+actor Student2
+
+participant "Frontend UI\n(Code Editor + Sim UI)" as UI
+participant "FastAPI Backend" as Backend
+participant "Docker Container\n(Task + Simulator)" as Container
+participant "WebSocketManager" as WS
+participant "NGINX Reverse Proxy" as NGINX
+
+Student1 -> UI : Edit + Submit Code
+Student2 -> UI : View Code and Output
+
+UI -> Backend : POST /submit (group_id, task_id)
+
+Backend -> Container : Launch container (group-task scope)
+Container -> Container : Build + Run student code
+Container -> Backend : Send stdout + test results
+
+Backend -> WS : Forward events
+WS -> UI : Stream results to all group members
+
+Student1 -> UI : Opens simulator at /sim/courseX/groupY/taskZ
+Student2 -> UI : Opens same simulator URL
+
+UI -> NGINX : GET /sim/courseX/groupY/taskZ
+NGINX -> Container : Route to internal simulator port
+Container -> UI : Serve Web UI (e.g., pendulum simulator)
+
+Student1 -> Container : Send control input
+Student2 -> Container : Observe real-time simulator response
+
+@enduml
+

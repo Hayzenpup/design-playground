@@ -14,8 +14,8 @@
 
 title Container Diagram - Codespace
 skinparam titleFontSize 24
-
-LAYOUT_LEFT_RIGHT()
+skinparam defaultFontSize 20
+skinparam dpi 150
 
 Person(student, "Student", "Submits code and checks feedback")
 Person(admin, "Instructor", "Configures tasks and manages students")
