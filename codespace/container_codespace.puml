@@ -17,17 +17,22 @@ skinparam titleFontSize 24
 skinparam defaultFontSize 20
 skinparam dpi 150
 
-Person(student, "Student", "Submits code and checks feedback")
-Person(admin, "Instructor", "Configures tasks and manages students")
+Person(student, "User", "Submits code and checks feedback")
+Person(admin, "Admin", "Configures tasks and manages users")
+
+System_Ext(email, "Mail Server")
+System_Ext(moodle, "Moodle Platform", "User Groups", $link="https://moodle.uni-siegen.de/course/view.php?id=5258")
+
 
 
 System_Boundary(s1, "Codespace System") {
-  Container(codefrontend, "Codespace UI", "React / Vite", "Frontend interface for students", $tags="UI", $sprite="react")
+  Container(codefrontend, "Codespace UI", "React / Vite", "Collaborative workspace.", $tags="UI", $sprite="react")
+  Container(simfrontend, "Simulation UI", "React / Vite", "Simulation interface for visualization and interaction", $tags="UI", $sprite="react")
   Container(adminfrontend, "Admin UI", "React / Vite", "Frontend interface for Admins", $tags="UI", $sprite="react")
   Container(proxy, "Reverse Proxy", "Nginx", "Route Traffic to correct service", $sprite="nginx")
-  Container(web, "FastAPI Web App", "Python / FastAPI", "Exposes REST API to students and admins", $sprite="python") 
+  Container(web, "FastAPI Web App", "Python / FastAPI", "Exposes REST API to users and admins", $sprite="python") 
   Container(worker, "Celery Worker", "Python / Celery", "Processes long-running background tasks", $sprite="python") 
-  Container(docker, "Execution Engine", "Docker CLI", "Executes student code in isolated containers", $sprite="docker")
+  Container(docker, "Execution Engine", "Docker CLI", "Executes user code in isolated containers", $sprite="docker")
   ContainerDb(redis, "Redis", "Redis", "Caches test results and handles async task queue", $sprite="redis")
   ContainerDb(db, "SQLite Database", "SQLite", "Stores persistent data like users, results, and configs", $sprite="sqlite")
   Container(fs, "Filesystem", "Linux FS", "Stores uploaded files, logs, and test configs", $sprite="linux-tux")
@@ -35,29 +40,32 @@ System_Boundary(s1, "Codespace System") {
   Container(kibana, "Kibana", "Log Dashboard", $sprite="kibana", $link="https://eslab.es.eti.uni-siegen.de/kibana/")
 }
 
-System_Ext(email, "Uni-Siegen Mail Server")
-System_Ext(moodle, "Moodle Platform", "Student Groups", $link="https://moodle.uni-siegen.de/course/view.php?id=5258")
 
-Rel(student, codefrontend, "Collaboratively edit, run and test code, submit report")
-Rel(codefrontend, proxy, "Sync code changes and get results", "HTTPS")
+Rel(student, codefrontend, "Access shared code editor, test runner, report submission, and group chat")
+Rel(student, simfrontend, "Visualize and interact with runtime simulation")
+Rel(codefrontend, proxy, "Sync code changes, tests, group messages, stdout streams", "HTTPS / WebSocket")
+Rel(simfrontend, proxy, "Update/Get simulation state", "HTTPS")
+
+' ==== ADMIN Relations ======
 Rel(admin, adminfrontend, "Configures tasks and manages courses")
-Rel(adminfrontend, proxy, "Configures tasks and manages courses", "HTTPS")
-Rel(admin, proxy, "Monitors Dashboard", "HTTPS")
-Rel(proxy, web, "students / admin course config requests", "HTTP")
-Rel(proxy, kibana, "admin-dashboard requests ", "HTTP")
+Rel(adminfrontend, proxy, "Sends task and course configuration requests", "HTTPS")
+Rel(admin, proxy, "Monitor Dashboard", "HTTPS")
+Rel(proxy, web, "Proxies Codespace and Simulation API traffic ", "HTTP")
+Rel(proxy, kibana, " Proxies admin dashboard traffic ", "HTTP")
 
-Rel(web, db, "Reads/Writes student submissions, auth", "SQL")
+' ===== FastApi Layer =========
+
+Rel(web, db, "Reads/Writes user submissions and authorization", "SQL")
 Rel(web, redis, "async tasks and pub/sub for live updates", "Redis")
 Rel(web, worker, "Dispatches background code execution", "Redis Queue")
-Rel(web, fs, "Save student's code, logs", "File I/O")
-Rel(web, docker, "Proxy to student's code", "HTTP")
+Rel(web, fs, "Save user's code and logs", "File I/O")
+Rel(web, docker, "Proxy to User's code / simulation server", "HTTP")
 Rel(web, email, "Notifications/OTP", "SMTP")
 Rel(fs, logging, "Ingest logs", "Filebeat")
 
 Rel(worker, docker, "Spawns containers to execute code", "Docker CLI")
-Rel(worker, redis, "Fetches job metadata and status", "Redis")
-Rel(fs, moodle, "Store Student Groups and Registrations", "CSV")
-
+Rel(worker, redis, "Fetches job metadata and status / Store worker state", "Redis")
+Rel(fs, moodle, "Stores group data exported from Moodle", "CSV")
 Rel(kibana, logging, "log search and Dashboards")
 
 SHOW_LEGEND()
