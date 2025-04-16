@@ -4,10 +4,12 @@ title Group Collaboration on Code and Interactive Simulation
 actor GroupUser1
 actor GroupUser2
 
-participant "Frontend UI\n(Code Editor + Sim UI)" as UI
+participant "Frontend UI\n(Editor + Sim)" as UI
 participant "Application Server" as Backend
-participant "Docker Container\n(Code Execution)" as Container
-participant "Redis PubSub / WebSocket Manager" as WS
+participant "Docker Container" as Container
+participant "PubSub / \n WebSocket Manager" as WS
+participant "Task Queue" as Redis
+participant "Worker" as Worker
 
 
 GroupUser1 -> UI : Edit Code
@@ -20,13 +22,18 @@ UI -> GroupUser2 : Display updated code
 ' ======= Execute/Test Code=====
 GroupUser1 -> UI : Execute/Test Code
 UI -> Backend : POST /submit (group_id, task_id)
-Backend -> Container : Launch container (group-task scope)
-Container -> Container : Build + Run User code
-Container -> Backend : Send stdout + test results
-Backend -> WS : Forward events
-WS -> UI : Stream results to all group members
-UI -> GroupUser2 : Display results/output
+Backend -> Redis : Enqueue code execution task
+Worker -> Redis : Fetch task from queue
+Worker -> Container : Launch container (group-task scoped)
+activate Container
 
+Container -> Container : Mount code and config
+Container -> Container : Build + Run User code
+Container -> WS : Send stdout
+WS -> UI : Stream results to all group members
+deactivate Container
+
+UI -> GroupUser2 : Display results/output
 
 GroupUser1 -> UI : Opens simulator at /sim/courseX/groupY/taskZ
 GroupUser2 -> UI : Opens same simulator URL

@@ -1,28 +1,34 @@
-@startuml
-title Test Submission and Real-Time Feedback Flow
 
-actor Student
+@startuml
+title Test Submission and Feedback Flow (Queue-Based Execution)
+
+actor User
 participant "Frontend UI" as UI
 participant "FastAPI Backend" as Backend
-participant "Docker Container\n(Task Runner)" as Container
-participant "WebSocketManager" as WS
+participant "Task Queue" as Redis
+participant "Worker" as Worker
+participant "Docker Container\n(Test Runner)" as Container
 
-Student -> UI : Submit code and report
+User -> UI : Submit code and report
 UI -> Backend : POST /submit
 
-Backend -> Backend : Validate submission
-Backend -> Backend : Persist code & report
-Backend -> Container : Launch container (per task/group)
+Backend -> Backend : Validate & persist submission
+Backend -> Redis : Enqueue test execution task
 
+Worker -> Redis : Fetch task from queue
+Worker -> Container : Launch container (group-task scoped)
 activate Container
-Container -> Container : Mount code and tests
-Container -> Container : Run Pytest or GTest
-Container -> Backend : Stream stdout and test events
-Backend -> WS : Forward events to WebSocket channel
-WS -> UI : Push real-time stdout + test results
+
+Container -> Container : Mount code and test config
+Container -> Container : Run Pytest / GTest
+Container -> Worker : Return results
 
 deactivate Container
-Backend -> Container : Terminate container
-Backend -> UI : Final submission status (pass/fail)
+Worker -> Redis : Store test result
+
+
+UI -> Backend : GET /status/groupX/taskY (polling)
+Backend -> Redis : Fetch result (if available)
+Backend -> UI : Respond with test result
 
 @enduml
