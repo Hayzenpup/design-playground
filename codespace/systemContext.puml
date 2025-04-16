@@ -1,5 +1,7 @@
 @startuml
 !includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+!includeurl FONTAWESOME/users.puml
 
 title System Context - Codespace
 skinparam titleFontSize 24
@@ -10,27 +12,27 @@ skinparam dpi 150
 LAYOUT_LEFT_RIGHT()
 
 ' === ACTORS ===
-Person(user, "Student", "Submits and runs code")
-Person(teacher, "Instructor", "Creates tests and reviews submissions")
+Person(user, "Users", "Collaborate on code-based tasks, simulations", $sprite="users")
+Person(teacher, "Instructor", "Configure tasks and review submissions")
 
 ' === SYSTEM UNDER DESIGN ===
 System_Boundary(s1, "Codespace System") {
-    System(codespace, "Codespace Platform", "Online platform for collaborative work and code execution in secure containers")
+    System(codespace, "Codespace Platform", "Multi-tenant platform for collaborative code editing, containerized execution, and interactive simulation")
     
 }
 
 ' === EXTERNAL SYSTEMS ===
 System_Ext(email, "SMTP Service", "Sends email notifications")
-System_Ext(moodle, "Moodle Platform", "Student Groups", $link="https://moodle.uni-siegen.de/course/view.php?id=5258")
+System_Ext(moodle, "Moodle Platform", "User Groups", $link="https://moodle.uni-siegen.de/course/view.php?id=5258")
 
 ' === RELATIONSHIPS ===
-Rel(user, codespace, "Collaboratively edit, run and test code, submit report")
-Rel(teacher, codespace, "Creates test cases, views reports")
+Rel(user, codespace, "Edit and execute code, run tests, interact with simulators, and submit reports")
+Rel(teacher, codespace, "Create and configure tasks, manage groups, and review submissions")
 Rel(codespace, email, "OTP authentication")
 Rel(codespace, email, "Sends results and alerts")
 
 Rel(user, moodle, "Form groups")
-Rel(codespace, moodle, "Get Student Groups and Registrations")
+Rel(codespace, moodle, "Get User Groups and Registrations")
 
 LAYOUT_WITH_LEGEND()
 @enduml
