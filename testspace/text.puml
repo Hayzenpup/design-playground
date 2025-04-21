@@ -1,0 +1,44 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+!includeurl FONTAWESOME/users.puml
+
+title System Context - Warehouse
+skinparam titleFontSize 24
+skinparam defaultFontSize 20
+skinparam dpi 150
+
+' Place this at the top, before elements
+LAYOUT_LEFT_RIGHT()
+
+
+' === SYSTEM UNDER DESIGN ===
+System_Boundary(s1, "WAREHOUSE") {
+    System(warehouse, "Warehouse", "A place for paket collenction and storage")
+    'warehouse is for placing it the middle.
+}
+
+'=== EXTERNAL ACTORS ===
+Person_Ext(company, "Example Company", "Pakages are delivered in bulk and stored for pickup by the Robot", $sprite="companys")
+Person_Ext(user, "Customer", "Picks up packages from the depot", $sprite="users")
+
+
+' === ACTORS ===
+'Person(company, "Example Company", "Pakages are delivered in bulk and stored for pickup by the Robot", $sprite="companys")
+Person(robot, "Robot", "picks up packages")
+Person(depot, "Zone depot","Stores packags unti Customer pickup")
+
+
+
+' === RELATIONSHIPS ===
+
+Rel(robot, warehouse, "picks up packages")
+Rel(warehouse, robot, "request pickup")
+Rel(depot,warehouse , "I have space for packages")
+Rel(robot, depot, "delivers a package")
+Rel(company, warehouse, "Ships packages to Warehouse")
+Rel(depot, user, "notifies user")
+Rel(user, depot, "picks up packages")
+
+LAYOUT_WITH_LEGEND()
+@enduml
