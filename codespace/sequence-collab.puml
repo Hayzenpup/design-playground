@@ -1,36 +1,45 @@
 @startuml
-title Group Collaboration on Task-Based Interactive UI
+title Group Collaboration on Code and Interactive Simulation
 
-actor Student1
-actor Student2
+actor GroupUser1
+actor GroupUser2
 
-participant "Frontend UI\n(Code Editor + Sim UI)" as UI
-participant "FastAPI Backend" as Backend
-participant "Docker Container\n(Task + Simulator)" as Container
-participant "WebSocketManager" as WS
-participant "NGINX Reverse Proxy" as NGINX
+participant "Frontend UI\n(Editor + Sim)" as UI
+participant "Application Server" as Backend
+participant "Docker Container" as Container
+participant "PubSub / \n WebSocket Manager" as WS
+participant "Task Queue" as Redis
+participant "Worker" as Worker
 
-Student1 -> UI : Edit + Submit Code
-Student2 -> UI : View Code and Output
 
+GroupUser1 -> UI : Edit Code
+UI -> Backend : WebSocket /editfile (group_id, file_id)
+Backend -> WS : Publish code update (group_id)
+WS -> Backend : Broadcast to all subscribers
+Backend -> UI : WebSocket push (file update)
+UI -> GroupUser2 : Display updated code
+
+' ======= Execute/Test Code=====
+GroupUser1 -> UI : Execute/Test Code
 UI -> Backend : POST /submit (group_id, task_id)
+Backend -> Redis : Enqueue code execution task
+Worker -> Redis : Fetch task from queue
+Worker -> Container : Launch container (group-task scoped)
+activate Container
 
-Backend -> Container : Launch container (group-task scope)
-Container -> Container : Build + Run student code
-Container -> Backend : Send stdout + test results
-
-Backend -> WS : Forward events
+Container -> Container : Mount code and config
+Container -> Container : Build + Run User code
+Container -> WS : Send stdout
 WS -> UI : Stream results to all group members
+deactivate Container
 
-Student1 -> UI : Opens simulator at /sim/courseX/groupY/taskZ
-Student2 -> UI : Opens same simulator URL
+UI -> GroupUser2 : Display results/output
 
-UI -> NGINX : GET /sim/courseX/groupY/taskZ
-NGINX -> Container : Route to internal simulator port
+GroupUser1 -> UI : Opens simulator at /sim/courseX/groupY/taskZ
+GroupUser2 -> UI : Opens same simulator URL
+UI -> Backend : GET /sim/taskX/groupY/taskZ
+Backend -> Container : Route to internal simulator port
 Container -> UI : Serve Web UI (e.g., pendulum simulator)
-
-Student1 -> Container : Send control input
-Student2 -> Container : Observe real-time simulator response
 
 @enduml
 

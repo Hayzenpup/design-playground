@@ -14,7 +14,7 @@
 !includeurl FONTAWESOME/users.puml
 
 
-title Container Diagram - Codespace
+title Container Diagram - CASCADE
 skinparam titleFontSize 24
 skinparam defaultFontSize 20
 skinparam dpi 150
@@ -27,8 +27,8 @@ System_Ext(moodle, "Moodle Platform", "User Groups", $link="https://moodle.uni-s
 
 
 
-System_Boundary(s1, "Codespace System") {
-  Container(codefrontend, "Codespace UI", "React / Vite", "Collaborative workspace.", $tags="UI", $sprite="react")
+System_Boundary(s1, "CASCADE System") {
+  Container(codefrontend, "Code Collab UI", "React / Vite", "Collaborative workspace.", $tags="UI", $sprite="react")
   Container(simfrontend, "Simulation UI", "React / Vite", "Simulation interface for visualization and interaction", $tags="UI", $sprite="react")
   Container(adminfrontend, "Admin UI", "React / Vite", "Frontend interface for Admins", $tags="UI", $sprite="react")
   Container(proxy, "Reverse Proxy", "Nginx", "Route Traffic to correct service", $sprite="nginx")
@@ -52,7 +52,7 @@ Rel(simfrontend, proxy, "Update/Get simulation state", "HTTPS")
 Rel(admin, adminfrontend, "Configures tasks and manages courses")
 Rel(adminfrontend, proxy, "Sends task and course configuration requests", "HTTPS")
 Rel(admin, proxy, "Monitor Dashboard", "HTTPS")
-Rel(proxy, web, "Proxies Codespace and Simulation API traffic ", "HTTP / WebSocket")
+Rel(proxy, web, "Proxies Code collab and Simulation API traffic ", "HTTP / WebSocket")
 Rel(proxy, kibana, " Proxies admin dashboard traffic ", "HTTP")
 
 ' ===== FastApi Layer =========

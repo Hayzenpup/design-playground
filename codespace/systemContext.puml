@@ -3,7 +3,7 @@
 !define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
 !includeurl FONTAWESOME/users.puml
 
-title System Context - Codespace
+title System Context - CASCADE
 skinparam titleFontSize 24
 skinparam defaultFontSize 20
 skinparam dpi 150
@@ -16,8 +16,8 @@ Person(user, "Users", "Collaborate on code-based tasks, simulations", $sprite="u
 Person(teacher, "Instructor", "Configure tasks and review submissions")
 
 ' === SYSTEM UNDER DESIGN ===
-System_Boundary(s1, "Codespace System") {
-    System(codespace, "Codespace Platform", "Multi-tenant platform for collaborative code editing, containerized execution, and interactive simulation")
+System_Boundary(s1, "CASCADE System") {
+    System(cascade, "CASCADE Platform", "Multi-tenant platform for collaborative code editing, containerized execution, and interactive simulation")
     
 }
 
@@ -26,13 +26,13 @@ System_Ext(email, "SMTP Service", "Sends email notifications")
 System_Ext(moodle, "Moodle Platform", "User Groups", $link="https://moodle.uni-siegen.de/course/view.php?id=5258")
 
 ' === RELATIONSHIPS ===
-Rel(user, codespace, "Edit and execute code, run tests, interact with simulators, and submit reports")
-Rel(teacher, codespace, "Create and configure tasks, manage groups, and review submissions")
-Rel(codespace, email, "OTP authentication")
-Rel(codespace, email, "Sends results and alerts")
+Rel(user, cascade, "Edit and execute code, run tests, interact with simulators, and submit reports")
+Rel(teacher, cascade, "Create and configure tasks, manage groups, and review submissions")
+Rel(cascade, email, "OTP authentication")
+Rel(cascade, email, "Sends results and alerts")
 
 Rel(user, moodle, "Form groups")
-Rel(codespace, moodle, "Get User Groups and Registrations")
+Rel(cascade, moodle, "Get User Groups and Registrations")
 
 LAYOUT_WITH_LEGEND()
 @enduml
