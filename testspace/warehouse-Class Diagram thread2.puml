@@ -1,0 +1,61 @@
+@startuml
+title First Thread of the Warehouse Simulation
+
+actor get_pkg
+participant "std" as system
+participant "Logger : m_logger" as logger
+participant "Packages : m_packages" as packages
+
+get_pkg -> logger: log_info("Starting task to get packages", m_sim_time)
+get_pkg -> system: cout << m_sim_time << " Starting task to get packages\n"
+
+loop while (true)
+    get_pkg -> get_pkg: wait_for_create_pkg_trigger()
+
+    alt if (m_packages.size() > m_max_capacity)
+        get_pkg -> system:cout << m_sim_time << " Warehouse is full. Cannot create more packages.\n"
+        get_pkg -> logger:log_info("Warehouse is full", m_sim_time)
+        'continue
+    end
+
+    alt if (m_sim_time >= m_next_pkg_arrival_time)
+        get_pkg -> system: exponential_distribution<>(1.0 / m_lambda_rate)(rng)
+        activate system
+        system -> get_pkg: inter_arrival_time
+        deactivate system
+
+        get_pkg -> get_pkg: m_next_pkg_arrival_time = m_sim_time + inter_arrival_time
+
+        'this is temporary
+        get_pkg -> get_pkg: package = create_pkg()
+
+
+        alt if (package.is_null())
+            get_pkg -> system: cout << m_sim_time << " Error creating package\n";
+            get_pkg -> logger: log_error("Error creating package", m_sim_time)
+            'continue
+        else
+            get_pkg -> get_pkg: package["status"] = "warehouse"
+
+            get_pkg -> system: lock_guard<std::mutex> lock(m_pkg_mutex)
+            get_pkg -> packages: push_back(package)
+
+            get_pkg -> package: dump()
+            activate package
+            package -> get_pkg:
+            deactivate package
+
+            get_pkg -> logger: log_info("Created package " + package.dump(), m_sim_time);
+            
+            get_pkg -> package: dump(4)
+            activate package
+            package -> get_pkg:
+            deactivate package
+            
+            get_pkg -> system: cout << m_sim_time << " Created package " + package.dump(4) + "\n"
+        end
+
+    end
+end
+
+@enduml

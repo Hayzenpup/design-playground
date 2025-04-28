@@ -1,0 +1,73 @@
+@startuml
+title First Thread of the Warehouse Simulation
+
+actor package_to_zone_depot
+participant system
+participant "com_socket_queue : m_warehouse_socket" as com_socket_queue
+participant "Logger : m_logger" as Logger
+
+
+package_to_zone_depot -> system: cout << m_sim_time << " Starting task package to zone depot\n";
+
+loop while (true)
+
+    package_to_zone_depot -> package_to_zone_depot: wait_for_send_pkg_trigger();
+    
+    package_to_zone_depot -> com_socket_queue: receive(m_component_name, "pkg_req", "receiver");
+    activate com_socket_queue
+    com_socket_queue -> package_to_zone_depot: req_msg
+    deactivate com_socket_queue
+
+    
+    package_to_zone_depot -> package_to_zone_depot:zone_depot = req_msg["sender"];
+    package_to_zone_depot -> system:cout << m_sim_time << " received package request from zone depot " << zone_depot << '\n';
+    
+
+    package_to_zone_depot -> system: format("received package request from zone depot {}", zone_depot)
+    activate system
+    system -> package_to_zone_depot: 
+    deactivate system
+    package_to_zone_depot -> Logger: log_info(format("received package request from zone depot {}", zone_depot), m_sim_time);
+    
+    
+    package_to_zone_depot -> package_to_zone_depot: pkg_res;
+    package_to_zone_depot -> package_to_zone_depot: pkg_to_send;
+    
+'m_packeges is a json file was mach ich jetzt damit kann ich das so lassen? Also ist das auch im main drin oder in einer anderen klasse?
+    
+    alt if (m_packages.empty())
+        package_to_zone_depot-> system: cout << m_sim_time << " No packages available\n";
+        package_to_zone_depot-> package_to_zone_depot: pkg_res["pkg_avail"] = "False";
+        package_to_zone_depot-> package_to_zone_depot: pkg_res["pkg"]["id"] = "None";
+    
+    else 
+        package_to_zone_depot-> package_to_zone_depot: pkg_to_send = m_packages[0];
+        package_to_zone_depot-> package_to_zone_depot: pkg_res["pkg_avail"] = "True";
+        package_to_zone_depot-> package_to_zone_depot: pkg_res["pkg"] = pkg_to_send;
+    
+        package_to_zone_depot-> system: format("sent package to zone depot {}", zone_depot);
+        activate system
+        system -> package_to_zone_depot: 
+        deactivate system
+        package_to_zone_depot -> Logger: m_logger.log_info(std::format("sent package to zone depot {}", zone_depot), m_sim_time);
+    end
+
+    
+    package_to_zone_depot-> package_to_zone_depot: response_message;
+    package_to_zone_depot-> package_to_zone_depot: response_message["sender"] = "warehouse";
+    package_to_zone_depot-> package_to_zone_depot: response_message["receiver"] = zone_depot;
+    package_to_zone_depot-> package_to_zone_depot: response_message["type"] = "Response";
+    package_to_zone_depot-> package_to_zone_depot: response_message["time"] = m_sim_time;
+    package_to_zone_depot-> package_to_zone_depot: response_message["data"] = pkg_res;
+
+
+
+    
+    package_to_zone_depot-> com_socket_queue: send(response_message, zone_depot, m_component_name, "sender");
+    activate com_socket_queue
+    com_socket_queue -> package_to_zone_depot: bool
+    deactivate com_socket_queue
+end
+
+
+@enduml
