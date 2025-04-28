@@ -1,0 +1,33 @@
+@startuml
+title First Thread of the Warehouse Simulation
+
+actor update_sim_time
+participant system
+participant "com_socket_tmq : m_time_socket" as com_socket_zmq
+participant "Logger : m_logger" as Logger
+
+update_sim_time -> system: cout << "Starting task update sim time\n"
+update_sim_time -> update_sim_time: int time_ = 0;
+
+loop while (true)
+
+    update_sim_time -> com_socket_zmq:send("warehouse");
+    com_socket_zmq -> update_sim_time: bool
+
+    update_sim_time -> com_socket_zmq:receive();
+    com_socket_zmq -> update_sim_time: msg
+
+    update_sim_time -> update_sim_time: time=stoi(msg);
+
+    alt _time < 0
+        update_sim_time -> system: format("simulation time: {} is negative\n", time_);
+        system -> update_sim_time: error_msg
+        update_sim_time -> Logger: log_error(error_msg, m_sim_time);
+    end
+
+    update_sim_time -> update_sim_time: m_sim_time = time_;
+
+end
+
+
+@enduml

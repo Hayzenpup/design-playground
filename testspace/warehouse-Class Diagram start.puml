@@ -1,0 +1,32 @@
+@startuml
+title Starting our Warehouse sim
+
+actor main
+participant "System" as system
+participant "Packages" as packages
+
+main -> system: std::cout << "Starting Warehouse"
+main -> system: std::string config_file = "configs/system_config.json"
+activate system
+system -> main: system_config.json
+deactivate system
+
+main -> packages: "Create with config file"
+
+main -> packages: run()
+activate packages
+
+packages -> system: std::jthread(&PackageWarehouse::update_sim_time, this)
+system -> packages: m_simtime_thread
+
+packages -> system: std::jthread(&PackageWarehouse::get_pkg, this) 
+system -> packages: m_gen_pkg_thread
+
+packages -> system: std::jthread(&PackageWarehouse::package_to_zone_depot, this)
+system -> packages: m_send_pkg_thread
+
+
+packages -> main
+
+deactivate packages
+@enduml
