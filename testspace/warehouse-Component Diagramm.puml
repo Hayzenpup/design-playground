@@ -1,0 +1,63 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/gilbarbara-plantuml-sprites/v1.1/sprites/python.puml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/gilbarbara-plantuml-sprites/v1.1/sprites/docker.puml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/gilbarbara-plantuml-sprites/v1.1/sprites/redis.puml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/gilbarbara-plantuml-sprites/v1.1/sprites/sqlite.puml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/gilbarbara-plantuml-sprites/v1.1/sprites/linux-tux.puml
+
+LAYOUT_TOP_DOWN()
+title Component Diagram - Web App
+skinparam titleFontSize 24
+skinparam defaultFontSize 20
+skinparam dpi 150
+
+' External systems
+'System_Ext(redis, "Redis", "Queue & PubSub", $sprite="redis")
+'System_Ext(db, "SQLite", "Metadata store", $sprite="sqlite")
+'System_Ext(email, "SMTP Server", "Email OTP")
+'System_Ext(docker, "Docker", "Container Execution", $sprite="docker")
+'System_Ext(fs, "Filesystem", "Stores user files", $sprite="linux-tux")
+'System_Ext(moodle, "Moodle", "Student Group CSV export")
+System_Ext(log_server, "log server", "Service", "Writes into file via File Manager.",$sprite="linux-tux")
+System_Ext(message_queue, "message queue", "Service", "Handles messages and communication",$sprite="linux-tux")
+System_Ext(time_server, "time server", "Service", "Manages contirbution of time",$sprite="linux-tux")
+
+Container_Boundary(web, "Warehouse") {
+  'Component(message_queue, "message queue", "FastAPI Router", "Handles messages and communication")
+  Component(logger, "logger", "...", "Loggs information and sends it to the log Server ")
+  Component(time_socket, "time socket", "...", "Manages time")
+  Component(warehouse_socket, "warehouse socket", "...", "Manages communication")
+
+  'Component(middleware, "middleware", "Service", "Validates OTP, generates tokens")
+  'Component(log_server, "log server", "Service", "Writes into file via File Manager.")
+  'Component(communication, "Communication", "Service", "Service to make sending messages easier")
+  'Component(service_admin, "AdminService", "Service", "Creates tasks, courses, groups, views logs")
+
+  'Component(redis_pubsub, "RedisPubSub", "Infrastructure", "Handles pub/sub messages for real-time updates", $sprite="redis")
+  'Component(docker_wrapper, "DockerProxy", "Infrastructure", "Proxies code execution to running container", $sprite="docker")
+  'Component(fs_access, "FileManager", "Infrastructure", "Reads and writes Users code/logs", $sprite="linux-tux")
+  'Component(email_sender, "EmailClient", "Infrastructure", "Sends OTP email via SMTP")
+  'Component(repo_db, "DB Repository", "Repository", "Reads and writes user, group, task, and report data", $sprite="sqlite")
+  'Component(moodle_loader, "MoodleGroupLoader", "Infrastructure", "Imports User groups from Moodle CSV", $sprite="linux-tux")
+
+  'Rel(message_queue, middleware, "OTP login + JWT issue")
+  Rel(logger, log_server, "sends information")
+  'Rel(time_server, service_admin, "Instructor config operations")
+  
+  'Rel(middleware, email_sender, "Send OTP email")
+  'Rel(middleware, repo_db, "User read/write")
+
+  'Rel(log_server, fs_access, "Saves and wirtes Logs")
+  'Rel(log_server,fs,"stores Log.")
+
+  'Rel(communication, time_socket, "")
+  'Rel(communication, warehouse_socket, "")
+  Rel(time_socket, time_server,"requests time update")
+
+  Rel(warehouse_socket, message_queue, "Send real-time updates")
+}
+'Fragen: are we missing something? What about the treads do we need to put them here.
+SHOW_LEGEND()
+@enduml
+

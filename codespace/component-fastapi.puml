@@ -67,4 +67,3 @@ Container_Boundary(web, "Web Application") {
 SHOW_LEGEND()
 @enduml
 
-
